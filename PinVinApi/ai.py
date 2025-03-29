@@ -88,6 +88,18 @@ async def analytics(name_lid, file_names):
 
     await asyncio.create_task(send_message_document(name_lid, f'./reports/Отчет от {datetime.datetime.now().strftime("%d.%m.%Y")} по {name_lid}.xlsx'))
 
+    data = []
+    df_all_data = pd.read_excel("./Данные.xlsx")
+    for i in df_all_data.values:
+        data.append(list(i))
+
+    for i in data_for_excel:
+        if i not in data:
+            data.append(i)
+
+    df_all_data = pd.DataFrame(data, columns=['Имя', 'Номер телефона', 'Портрет ситуации:', 'Теплота лида', 'Ситуация', 'Потребности', 'Боли', 'Возражения', 'Рекомендации, чтобы закрыть сделку', 'Процент соотношения чек-листа', 'Критические нарушения'])
+    df_all_data.to_excel("Данные.xlsx", index=False)
+
     return f'./reports/Отчет от {datetime.datetime.now().strftime("%d.%m.%Y")} по {name_lid}.xlsx', data
 
 

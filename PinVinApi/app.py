@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from typing import List, Tuple
 from pathlib import Path
 from ai import *
+import pandas as pd
 
 
 tags_metadata =[
@@ -29,7 +30,7 @@ tags_metadata =[
     },
     {
         "name":"dashboard",
-        "description":"Дает доступ к DASHBOARD по UUID",
+        "description":"Дает доступ к DASHBOARD",
     }
 ]
 
@@ -100,15 +101,49 @@ async def answer_page(request: Request):
     return templates.TemplateResponse("answer.html", {"request": request})
 
 
-@app.get("/dashboard/{dashboard_uuid}", tags=["dashboard"])
-async def dashboard(request: Request, dashboard_uuid: uuid.UUID):
+# @app.get("/dashboard/{dashboard_uuid}", tags=["dashboard"])
+# async def dashboard(request: Request, dashboard_uuid: uuid.UUID):
+#     return templates.TemplateResponse("dashboard.html", {
+#         "request": request,
+#
+#         "dashboard_uuid": dashboard_uuid
+#     })
+
+
+# @app.get('/dashboard', tags=["dashboard"])
+# async def dashboard(request: Request):
+#     df = pd.read_excel('./Данные.xlsx')
+#     data = df.values.tolist()
+#     return templates.TemplateResponse("dashboard.html")
+
+@app.get("/dashboard", tags=["dashboard"])
+async def dates(request: Request):
+    df = pd.read_excel('./Данные.xlsx')
+    json_data = df.to_json()
+
+    print(df.to_dict())
+
+    dict_users = {"Sheet1": []}
+    for i in df.values:
+        dict_data = {}
+        for num, col in enumerate(df.columns):
+            dict_data[col] = i[num]
+        dict_users["Sheet1"].append(dict_data)
+    print(dict_users)
+    # dict_users = {
+    #         "Sheet1": [
+    #             {"Имя": "Иванов А", "Процент соотношения чек-листа": "42%", "Теплота лида": "Теплый", "Ситуация": "Запрос на возврат", "Потребности": "Возврат средств", "Возражения": "Неясность процесса", "Критические нарушения": "Отсутствие уточнения имени"},
+    #             {"Имя": "Иванов А", "Процент соотношения чек-листа": "69%", "Теплота лида": "Средняя", "Ситуация": "Запрос на услугу", "Потребности": "Консультация", "Возражения": "Не время для консультации", "Критические нарушения": "Нет контакта с клиентом"},
+    #             {"Имя": "Петров В", "Процент соотношения чек-листа": "60%", "Теплота лида": "Средняя", "Ситуация": "Интерес к каталогу", "Потребности": "Поиск деталей", "Возражения": "Цена выше ожиданий", "Критические нарушения": "Недостаточное выявление потребностей"},
+    #             {"Имя": "Петров В", "Процент соотношения чек-листа": "42%", "Теплота лида": "Теплый", "Ситуация": "Запрос на возврат", "Потребности": "Возврат средств", "Возражения": "Неясность процесса", "Критические нарушения": "Отсутствие уточнения имени"},
+    #             {"Имя": "Сидоров М", "Процент соотношения чек-листа": "80%", "Теплота лида": "Теплый", "Ситуация": "Запрос на услугу", "Потребности": "Консультация", "Возражения": "Не время для консультации", "Критические нарушения": "Нет контакта с клиентом"},
+    #             {"Имя": "Михайлов И", "Процент соотношения чек-листа": "90%", "Теплота лида": "Низкая", "Ситуация": "Интерес к продукции", "Потребности": "Ожидание скидок", "Возражения": "Высокая цена", "Критические нарушения": "Отсутствие действия"}
+    #         ]
+    #     }
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
-
-        "dashboard_uuid": dashboard_uuid
+        "jsonData": dict_users
     })
-
-
 
 
 
